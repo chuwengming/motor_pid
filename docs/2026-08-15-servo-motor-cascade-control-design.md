@@ -138,7 +138,8 @@
 | 速度環 | 1 kHz | PI + D 濾波 | 限幅為 PWM 0–100% | 抑制負載擾動/摩擦，抗飽和 |
 | （未來）電流環 | 10 kHz | PI | PWM 限幅 | F446 可擴充，此階段不做 |
 
-- **抗飽和**：兩環皆採積分夾緊（conditional integration）＋ 輸出限幅。
+- **加減速 Profile（已實作）**：速度命令斜坡（`MOTOR_MAX_ACCEL` = 200 RPM/s，避免階躍衝擊）；位置模式依剩餘距離減速 `v = √(2·a·d)`（梯形 profile，精確停靠不過衝）。
+- **抗飽和**：兩環皆採積分夾緊（conditional integration）＋ 輸出限幅（積分上限 = 100/ki，可達全輸出）。
 - **微分濾波**：速度環 D 項對編碼器雜訊敏感，採低通濾波（一階），且**對量測輸入微分、不對誤差微分**（沿用溫度版的既有經驗）。
 - **速度量測**：M 法（單位時間計數）。低速時（計數 < 門檻）自動切換 T 法（脈衝週期量測）以維持低速解析度（可配置）。
 - **單位**：位置 = 編碼器計數（deg 為顯示單位）；速度 = counts/s → deg/s（由 PPR×4×減速比換算，全部為可配置常數）。
@@ -210,9 +211,9 @@ PC 主控 ─USB-CAN 適配器─ CAN bus ── 節點1(關節1) ── 節點2
 | `F446_Motor_PID.ioc` | 🔄 重配 | 移除 SPI2/USART2/SSR；TIM1=PWM、TIM2=Encoder(32bit)、TIM3=1kHz 時基（手動）、CAN、USART2=debug、ADC1 預留 |
 | `Core/Src/main.c` | ♻️ 重寫 | F446 外設初始化 + 主迴圈（CAN/狀態機/自整定背景執行） |
 | `Core/Inc/main.h` | ♻️ 重寫 | 馬達系統全域變數（SV/實際速度/位置/參數/狀態/錯誤碼）＋ 可配置常數 |
-| `Core/Src/Motor_PID.c` | ➕ 新增 | 級聯 PID（位置環 100Hz + 速度環 1kHz）、抗飽和、D 濾波、單位換算 |
+| `Core/Src/Motor_PID.c` | ➕ 已實作 | 級聯 PID（位置環 100Hz + 速度環 1kHz）、抗飽和（積分=100/ki）、D 濾波、加減速 profile、雙向 PWM |
 | `Core/Src/Motor_Driver.c` | ➕ 新增 | PWM/方向/使能/剎車、過流/急停保護、開/閉迴路切換 |
-| `Core/Src/Encoder.c` | ➕ 新增 | TIM2 32-bit 編碼器、速度計算（M/T 法）、歸零/限位 |
+| `Core/Src/Encoder.c` | ➕ 已實作 | TIM2 32-bit 編碼器、M 法速度計算 + EMA 平滑、單位換算（60,000 counts/rev）、歸零 |
 | `Core/Src/Comm_CAN.c` | ➕ 新增 | bxCAN 初始化、收發佇列、協定解析（§6 之 ID 表） |
 | `Core/Src/AutoTune_PID.c` | 🔄 改寫 | 保留繼電器法架構（ZN/CC），時間尺度/輸出域改為馬達（速度整定，秒級） |
 | `Core/Src/Flash_Storage.c` | 🔄 改寫 | 馬達參數結構持久化（F446 最後一頁） |
@@ -399,10 +400,11 @@ C:\Users\chuwe\Documents\
 ### 13.6 建置驗證（2026-08-15）
 
 ```
-[25/25] Linking C executable F446_Motor_PID.elf
-  RAM:   1912 B / 128 KB  (1.46%)
-  FLASH: 16868 B / 512 KB (3.22%)
+[3/3] Linking C executable F446_Motor_PID.elf
+  RAM:   2424 B / 128 KB  (1.85%)
+  FLASH: 25144 B / 512 KB (4.80%)
 產出：F446_Motor_PID.elf / .hex / .bin（build/Debug/）
+（已含 Encoder.c + Motor_PID.c 控制層）
 ```
 
 - **BUILD EXIT 0**，無警告錯誤
@@ -412,6 +414,31 @@ C:\Users\chuwe\Documents\
 
 - 手動修改一律寫在 USER CODE 區（CubeMX 重新生成不覆蓋）
 - 未來若重新生成：留意 `RCC_HSE_ON`（#1）需重新套用；TIM3（#2）已於 USER CODE 區自動保留
+
+---
+
+## 15. 版本控制與後續工作
+
+### 15.1 GitHub 倉庫
+
+- **URL**：https://github.com/chuwengming/motor_pid
+- **首次提交**：2026-08-16（141 檔案）
+- **.gitignore 排除**：`PID_ZN/`（舊 F100 參考）、`build/`、`node_modules/`、`dist/`
+
+### 15.2 韌體待完成工作（依序）
+
+| # | 工作 | 內容摘要 |
+|---|---|---|
+| 1 | **AutoTune 韌體化** | 繼電器法狀態機 → Ku/Tu 量測 → ZN/TL/CC → 自動套用（對接 UI 0x106）|
+| 2 | **CAN 通訊層** | bxCAN 500kbps、RX 過濾器 + 協定解析、TX 狀態回報（0x181/0x182/0x183）|
+| 3 | **Flash 參數持久化** | 最後一頁 Sector、參數結構（版本+CRC）、保存/載入 |
+
+### 15.3 硬體到達後的必辦事項（重要）
+
+- **C. 位置保持**：位置環加小積分（ki）或到達後保持邏輯（重力載荷不漂移）
+- **D. 安全保護**：過流（ADC）、軟體限位、急停完善、過溫
+- M1 燒錄驗證 → 全系統整合調校
+
 
 ---
 
@@ -469,8 +496,15 @@ ui/
 手動：cd ui\bridge && npm run sim；cd ui\frontend && npm run dev
 ```
 
-### 14.6 狀態（2026-08-15）
+### 14.6 功能與狀態（2026-08-15）
 
-- ✅ 模擬全流程驗證通過：連線 → 速度/位置控制 → 時序 → AutoTune（ZN 產出 Ku/Tu/Kp/Ki/Kd）
+**已實作功能**：
+- ✅ 速度控制（RUN 中可「更新目標轉速」即時切換，如 30↔80）
+- ✅ 位置控制（歸零 → 設定 → 到達，0→100 精確無過衝）
+- ✅ 加減速 Profile（速度斜坡 + 位置距離減速）
+- ✅ 時序流程、AutoTune（模擬，ZN/TL/CC）、PID 參數讀寫
+- ✅ 顯示平滑（EMA）、模式狀態提示
 - ⏳ 串列模式待硬體（Nucleo-F446RE + USB VCP）到達後啟用
+
+**GitHub 倉庫**：https://github.com/chuwengming/motor_pid（首次提交 2026-08-16，141 檔案）
 
