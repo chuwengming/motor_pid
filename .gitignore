@@ -1,0 +1,30 @@
+# ============ F446_Motor_PID .gitignore ============
+
+# 舊 F100 參考專案（僅供參考，不入庫）
+PID_ZN/
+
+# ---- 韌體建置產物 ----
+build/
+cmake-build-*/
+*.o
+*.obj
+*.elf
+*.hex
+*.bin
+*.map
+*.su
+*.d
+
+# ---- Node.js ----
+node_modules/
+dist/
+*.tsbuildinfo
+
+# ---- 開發環境 ----
+.vscode/
+.idea/
+*.log
+
+# ---- 系統 ----
+Thumbs.db
+.DS_Store

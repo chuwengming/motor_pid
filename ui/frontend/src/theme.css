@@ -1,0 +1,153 @@
+/* ============================================================
+   F446 Motor PID — 工業控制台主題 (Industrial Console)
+   深石墨底 + 藍圖格線 + 琥珀/青色強調 + 等寬數據字體
+   ============================================================ */
+
+:root {
+  /* 色票 */
+  --bg-0: #0b0e14;            /* 最深背景 */
+  --bg-1: #11161f;            /* 面板背景 */
+  --bg-2: #1a2130;            /* 面板內部 */
+  --line: #2a3446;            /* 邊框/格線 */
+  --line-soft: #1d2533;
+  --txt: #d7e0ee;             /* 主文字 */
+  --txt-dim: #8b98ad;         /* 次文字 */
+  --amber: #ffb020;           /* 能量/警示 */
+  --amber-glow: rgba(255,176,32,.35);
+  --cyan: #35d6ff;            /* 資訊/數據 */
+  --cyan-glow: rgba(53,214,255,.3);
+  --green: #37e29a;           /* 正常 */
+  --red: #ff5d5d;             /* 危險 */
+  --yellow: #ffd166;          /* 警告 */
+
+  /* 字體 */
+  --font-disp: 'Rajdhani', 'Noto Sans TC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+  --font-body: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+
+  --radius: 8px;
+  --panel-pad: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1200px 500px at 80% -10%, rgba(53,214,255,.05), transparent 60%),
+    radial-gradient(900px 400px at 10% 110%, rgba(255,176,32,.04), transparent 60%),
+    var(--bg-0);
+  color: var(--txt);
+  /* 藍圖格線 */
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(42,52,70,.18) 39px 40px),
+    repeating-linear-gradient(90deg, transparent 0 39px, rgba(42,52,70,.18) 39px 40px);
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* ============ 版面 ============ */
+.app { display: flex; flex-direction: column; height: 100%; }
+.topbar {
+  display: flex; align-items: center; gap: 18px;
+  padding: 10px 20px; border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(26,33,48,.9), rgba(17,22,31,.95));
+}
+.topbar .brand { font-family: var(--font-disp); font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+.topbar .brand em { color: var(--amber); font-style: normal; }
+.topbar .meta { margin-left: auto; display: flex; gap: 16px; align-items: center; font-family: var(--font-mono); font-size: 12px; color: var(--txt-dim); }
+
+.main { flex: 1; display: grid; grid-template-columns: 340px 1fr 330px; gap: 12px; padding: 12px; min-height: 0; }
+.col { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow: auto; }
+.col-left { grid-column: 1; }
+.col-mid  { grid-column: 2; }
+.col-right{ grid-column: 3; }
+
+/* ============ 面板 ============ */
+.panel {
+  background: linear-gradient(180deg, rgba(26,33,48,.85), rgba(17,22,31,.9));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--panel-pad);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 4px 16px rgba(0,0,0,.35);
+}
+.panel h3 {
+  font-family: var(--font-disp); font-size: 13px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--txt-dim);
+  border-bottom: 1px solid var(--line-soft); padding-bottom: 6px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel h3 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px var(--amber-glow); }
+.panel h3 .dot.cyan { background: var(--cyan); box-shadow: 0 0 8px var(--cyan-glow); }
+
+/* ============ 表單 ============ */
+.row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.row label { font-size: 12px; color: var(--txt-dim); min-width: 64px; }
+input[type=number], input[type=text], select {
+  background: var(--bg-0); color: var(--txt);
+  border: 1px solid var(--line); border-radius: 4px;
+  padding: 6px 8px; font-family: var(--font-mono); font-size: 13px;
+  width: 100%; outline: none;
+}
+input:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px var(--cyan-glow); }
+input[type=range] { width: 100%; accent-color: var(--amber); }
+
+/* ============ 按鈕 ============ */
+.btn {
+  font-family: var(--font-disp); font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  padding: 8px 14px; border-radius: 5px; border: 1px solid var(--line);
+  background: var(--bg-2); color: var(--txt); cursor: pointer;
+  transition: all .15s ease; text-transform: uppercase;
+}
+.btn:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.run    { background: linear-gradient(180deg, #1d5c3a, #17482e); border-color: #2a8a55; color: #b7f7d2; }
+.btn.run:hover    { box-shadow: 0 0 12px rgba(55,226,154,.35); }
+.btn.stop   { background: linear-gradient(180deg, #5c1d1d, #481717); border-color: #8a2a2a; color: #f7b7b7; }
+.btn.stop:hover   { box-shadow: 0 0 12px rgba(255,93,93,.35); }
+.btn.warn   { background: linear-gradient(180deg, #5c4317, #483717); border-color: #8a6a2a; color: #f7e3b7; }
+.btn.warn:hover   { box-shadow: 0 0 12px rgba(255,209,102,.35); }
+.btn.mini { padding: 4px 10px; font-size: 11px; }
+.btn-group { display: flex; gap: 8px; }
+
+/* ============ 數據顯示 ============ */
+.big-num {
+  font-family: var(--font-mono); font-size: 42px; font-weight: 700;
+  color: var(--cyan); text-shadow: 0 0 16px var(--cyan-glow); line-height: 1;
+}
+.big-num .unit { font-size: 16px; color: var(--txt-dim); margin-left: 4px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat { background: var(--bg-0); border: 1px solid var(--line-soft); border-radius: 6px; padding: 8px 10px; }
+.stat .k { font-size: 11px; color: var(--txt-dim); font-family: var(--font-disp); letter-spacing: 1px; }
+.stat .v { font-family: var(--font-mono); font-size: 18px; color: var(--txt); }
+
+/* ============ LED ============ */
+.led { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.led.green { background: var(--green); box-shadow: 0 0 10px rgba(55,226,154,.7); }
+.led.red   { background: var(--red);   box-shadow: 0 0 10px rgba(255,93,93,.7); }
+.led.amber { background: var(--amber); box-shadow: 0 0 10px var(--amber-glow); }
+.led.grey  { background: #3a4356; }
+
+/* ============ 時序表 ============ */
+.seq-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; }
+.seq-table th { color: var(--txt-dim); font-weight: 600; text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.seq-table td { padding: 4px 6px; border-bottom: 1px solid var(--line-soft); }
+.seq-table tr:hover td { background: rgba(53,214,255,.05); }
+
+/* ============ 錯誤/事件 ============ */
+.event-list { font-family: var(--font-mono); font-size: 11px; max-height: 150px; overflow-y: auto; }
+.event-list div { padding: 3px 6px; border-left: 2px solid var(--line); margin-bottom: 2px; color: var(--txt-dim); }
+.event-list div.err { border-color: var(--red); color: var(--red); }
+.event-list div.ok  { border-color: var(--green); color: var(--green); }
+
+/* ============ 滑桿值 ============ */
+.slider-val { font-family: var(--font-mono); font-size: 13px; color: var(--amber); min-width: 52px; text-align: right; }
+
+/* 捲軸 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3a4a63; }

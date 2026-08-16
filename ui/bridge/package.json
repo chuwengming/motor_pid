@@ -1,0 +1,18 @@
+{
+  "name": "f446-bridge",
+  "version": "0.1.0",
+  "description": "F446 Motor PID - PC bridge (WebSocket <-> motor node, with simulator mode)",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "sim": "node server.js --mode sim",
+    "serial": "node server.js --mode serial"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "serialport": "^12.0.0"
+  }
+}
