@@ -153,7 +153,11 @@ void MotorPID_EmergencyStop(void)
   motor_mode = MOTOR_MODE_EMERGENCY;
   motor_pwm = 0.0f;
   ApplyOutput(0.0f);
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);   /* 關閉馬達使能（安全） */
+  /* 拉低 STBY 徹底關閉驅動器輸出（PB10 = MOTOR_STBY） */
+  HAL_GPIO_WritePin(MOTOR_STBY_GPIO_Port, MOTOR_STBY_Pin, GPIO_PIN_RESET);
+  /* 錯誤旗標：急停觸發 */
+  extern volatile uint8_t err_flags;
+  err_flags |= 0x08;
 }
 
 void MotorPID_SetSpeedSV(float rpm)

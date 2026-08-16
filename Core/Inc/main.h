@@ -51,6 +51,9 @@ extern "C" {
 #define MOTOR_MAX_DEG_PER_SEC (MOTOR_MAX_RPM * 6)                  // 600 deg/s
 #define MOTOR_MAX_ACCEL       200      // 加減速限制（RPM/s）：速度斜坡 / 位置減速
 
+// ----- 錯誤旗標（急停/安全） -----
+extern volatile uint8_t err_flags;   /* 0x01=過流 0x02=過溫 0x04=編碼器 0x08=急停 0x10=過速 0x20=通訊逾時 */
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
