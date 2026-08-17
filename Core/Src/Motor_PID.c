@@ -153,8 +153,8 @@ void MotorPID_EmergencyStop(void)
   motor_mode = MOTOR_MODE_EMERGENCY;
   motor_pwm = 0.0f;
   ApplyOutput(0.0f);
-  /* 拉低 STBY 徹底關閉驅動器輸出（PB10 = MOTOR_STBY） */
-  HAL_GPIO_WritePin(MOTOR_STBY_GPIO_Port, MOTOR_STBY_Pin, GPIO_PIN_RESET);
+  /* DRV8871：無 STBY 腳，急停 = PWM 歸零 + IN2(PB0) 拉低（IN1=IN2=0 → 輸出關閉） */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
   /* 錯誤旗標：急停觸發 */
   extern volatile uint8_t err_flags;
   err_flags |= 0x08;
