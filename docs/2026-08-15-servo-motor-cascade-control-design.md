@@ -76,6 +76,8 @@
 | ~~方向 B~~ | ~~PB1~~ | 釋放 | DRV8871 單晶片全橋，不需第二方向腳 |
 | ~~驅動使能~~ | ~~PB10~~ | 釋放 | DRV8871 無 STBY 腳；急停 = PWM 歸零 + IN2 拉低 |
 | 電流感測（未來）| **PA4** | ADC1_IN4 | → DRV8871 **IPROPI**（類比電流感測，DOB/過流基礎） |
+
+> **DRV8871 控制模式（模式 A，已定案）**：**PMODE 接地（LOW）** → IN1 = PWM（PA8）、IN2 = 方向（PB0）。正轉：IN1=PWM + IN2=HIGH；反轉：IN1=PWM + IN2=LOW。急停：IN1=IN2=0。韌體零修改直接對應。
 | 編碼器 A | **PA0** | TIM2_CH1 | TIM2 為 **32-bit**，編碼器模式 3（4x） |
 | 編碼器 B | **PA1** | TIM2_CH2 | ↑ |
 | CAN TX | **PB9** | CAN1_TX | → TJA1050 TXD |
